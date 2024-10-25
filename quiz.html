@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Anime Quiz</title>
+    <style>
+      #preloader {
+        background-color: #000;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        transition: 0.5s all;
+      }
+      #preloader.hidden {
+        opacity: 0;
+        visibility: hidden;
+      }
+ 
+      #loader {
+        display: block;
+        position: relative;
+        left: 50%;
+        top: 50%;
+        width: 150px;
+        height: 150px;
+        margin: -75px 0 0 -75px;
+        border-radius: 50%;
+        border: 3px solid transparent;
+        border-top-color: #9370db;
+        -webkit-animation: spin 2s linear infinite;
+        animation: spin 2s linear infinite;
+      }
+      #loader:before {
+        content: "";
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        right: 5px;
+        bottom: 5px;
+        border-radius: 50%;
+        border: 3px solid transparent;
+        border-top-color: #ba55d3;
+        -webkit-animation: spin 3s linear infinite;
+        animation: spin 3s linear infinite;
+      }
+      #loader:after {
+        content: "";
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        right: 15px;
+        bottom: 15px;
+        border-radius: 50%;
+        border: 3px solid transparent;
+        border-top-color: #ff00ff;
+        -webkit-animation: spin 1.5s linear infinite;
+        animation: spin 1.5s linear infinite;
+      }
+      @-webkit-keyframes spin {
+        0% {
+          -webkit-transform: rotate(0deg);
+          -ms-transform: rotate(0deg);
+          transform: rotate(0deg);
+        }
+        100% {
+          -webkit-transform: rotate(360deg);
+          -ms-transform: rotate(360deg);
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes spin {
+        0% {
+          -webkit-transform: rotate(0deg);
+          -ms-transform: rotate(0deg);
+          transform: rotate(0deg);
+        }
+        100% {
+          -webkit-transform: rotate(360deg);
+          -ms-transform: rotate(360deg);
+          transform: rotate(360deg);
+        }
+      }
+      body {
+        margin: 0;
+      }
+      .body {
+        background-color: #09001d;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        box-shadow: 2px 3px#c40094;
+      }
+      .container {
+        width: 500px;
+        border: 2px solid #c40094;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 6px;
+        padding: 20px 30px;
+        /* opacity: 0; */
+      }
+      .quiz-header {
+        margin-bottom: 30px;
+      }
+      .quiz-header .question-text {
+        border-bottom: 2px solid #c40094;
+      }
+      .quiz-card h1 {
+        color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(45deg, transparent, #c40094, transparent);
+      }
+      .header-score {
+        background: #c40094;
+        border-radius: 3px;
+        padding: 7px;
+        font-size: 20px;
+        font-weight: 500;
+        color: #fff;
+        margin-left: 350px;
+      }
+      .option-list {
+        margin-bottom: 10px;
+      }
+      .option-list .option.disabled {
+        pointer-events: none;
+      }
+       .option {
+        color: #fff;
+        font-weight: 400;
+        font-size: 24px;
+            padding: 12px;
+        background: transparent;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+        font-size: 17px;
+        margin: 15px 0;
+        cursor: pointer;
+      }
+      .option.correct {
+        background-color: #09001d;
+      border-color:#00a63d;
+      color: #00a63d;
+      }
+        .option.incorrect {
+          background-color: #09001d;
+          border-color: #a60045;
+          color: #a60045;
+        }
+ 
+      .question-text {
+        color: #fff;
+        font-weight: 700;
+        font-size: 28px;
+        padding-bottom: 20px;
+      }
+      .quiz-footer {
+        display: flex;
+        justify-content: space-between;
+        border-top: 2px solid #c40094;
+        padding-top: 20px;
+      }
+      .question-total {
+        font-size: 24px;
+        font-weight: 500;
+        color: #fff;
+        margin-top: 20px;
+      }
+      .next-btn {
+        width: 100px;
+        height: 45px;
+        background-color: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 6px;
+        font-size: 16px;
+        color: rgba(255, 255, 255, 0.3);
+        font-weight: 500;
+        transition: 0.5s;
+        margin-top: 15px;
+        pointer-events: none;
+      }
+      .next-btn.active {
+        pointer-events: auto;
+          background: #c40094;
+        border-color: #c40094;
+        color: #fff;
+      }
+         .next-btn.active:hover {
+        background: #c40094;
+        border-color: #c40094;
+      }
+      .footer {
+        display: flex;
+        justify-content: space-between;
+      }
+      .footer span {
+        width: 100px;
+        height: 45px;
+        border-radius: 6px;
+        font-size: 16px;
+        color: #fff;
+        font-weight: 500;
+        transition: 0.5s;
+        margin-top: 15px;
+      }
+      .result-box {
+        color: #fff;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%)scale(.9);
+        width: 500px;
+        border: 2px solid #c40094;
+        border-radius: 6px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .result-box.active {
+        opacity: 1;
+        transition: 0.3s all;
+         transform: translate(-50%, -50%)scale(1);
+      }
+      .result-box h2 {
+        font-size: 52px;
+      }
+      .percentage-container{
+        width: 300px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 20px 0 40px;
+      }
+      .circular-progress {
+        position: relative;
+        width: 250px;
+        height: 250px;
+        border-radius: 50%;
+        background: conic-gradient(#c40094 3.6deg, rgba(255, 255, 255, .1)0deg);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .circular-progress:before {
+        content: "";
+        position: absolute;
+        width: 210px;
+        height: 210px;
+        background-color: #09001d;
+        border-radius: 50%;
+      }
+      .progress-value {
+        position: relative;
+        font-size: 48px;
+        font-family: 600;
+      }
+      .score-text {
+        font-size: 26px;
+        font-weight: 600;
+        margin-top: 20px;
+      }
+       .buttons {
+        display: flex;
+        pointer-events: auto;
+       }
+      .laitaiatag {
+          width: 130px;
+         height: 47px;
+      border-radius: 6px;
+         background-color: #c40094;
+      }
+    .tryAgainBtn {
+       width: 130px;
+         height: 47px;
+         background-color: transparent;
+         border: 2px solid #c40094;
+         color: #c40094;
+         outline: none;
+         border-radius: 6px;
+         font-size: 16px;
+         font-weight: 600;
+         margin: 0 20px;
+         cursor: pointer;
+         transition: 0.3s all;
+         pointer-events: auto;
+
+    }
+    .goHomeBtn {
+       width: 130px;
+         height: 47px;
+        text-decoration: none;
+        color: #fff;
+        display: flex;
+         justify-content: center;
+         align-items: center;
+    }
+    .tryAgainBtn:hover {
+         background-color: #c40094;
+         color: #fff;
+    }
+    </style>
+  </head>
+  <body>
+    <div id="preloader">
+      <div id="loader"></div>
+    </div>
+    <div class="body">
+      <div class="container">
+        <div class="quiz-card">
+          <h1>Монгол Anime Quiz</h1>
+          <div class="quiz-header">
+            <span class="header-score">Оноо: 0 / 5</span>
+            <h2 class="question-text">
+             
+            </h2>
+            <div class="option-list">
+         
+            </div>
+            <div class="footer">
+              <span class="Questions">1 of 5 Questions</span>
+              <button class="next-btn">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="result-box">
+        <h2>Quiz Result!</h2>
+        <div class="percentage-container">
+          <div class="circular-progress">
+            <span class="progress-value">0%</span>
+          </div>
+          <div class="span score-text">Your result 0 out of 5</div>
+        </div>
+        <div class="buttons">
+           <button class="tryAgainBtn">Try Again</button>
+        <div class="laitaiatag">
+          <a href="./index.html" class="goHomeBtn">Go Home</a>
+        </div>
+        </div>
+      </div>
+    </div>
+    <script src="./script.js"></script>
+  </body>
+</html>
